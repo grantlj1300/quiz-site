@@ -20,14 +20,37 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+}
+
+.start-title {
+    margin: 0;
 }
 
 .start-description {
     font-family: "Inter", sans-serif;
+    text-align: center;
+}
+
+.start-form {
+    display: flex;
+    gap: 10px;
+}
+
+.start-form-input {
+    font-family: "Inter", sans-serif;
+    font-size: 100%;
+    border-radius: 10px;
+    height: 40px;
+    width: 185px;
 }
 
 .start-button {
     border-radius: 15px;
+    width: 200px;
+    height: 60px;
+    font-size: 16px;
+    text-align: center;
 }
 
 .question-choices {

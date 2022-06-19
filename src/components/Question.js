@@ -1,12 +1,14 @@
-export default function Question() {
+export default function Question(props) {
+
+    const answerArray = props.answers.map(answer => (
+        <button>{answer}</button>
+    ))
+
     return (
         <div className="question">
-            <label>Question</label>
+            <label>{props.question}</label>
             <div className="question-choices">
-                <button>Option</button>
-                <button>Option</button>
-                <button>Option</button>
-                <button>Option</button>
+                {answerArray}
             </div>
         </div>
     )
