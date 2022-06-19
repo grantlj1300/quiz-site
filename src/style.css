@@ -1,0 +1,36 @@
+* {
+    font-family: "Karla", sans-serif;
+    background: #F5F7FB;
+    color: #293264;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    font-family: "Inter", sans-serif;
+    color: #F5F7FB;
+    background: #4D5B9E;
+}
+
+.start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.start-description {
+    font-family: "Inter", sans-serif;
+}
+
+.start-button {
+    border-radius: 15px;
+}
+
+.question-choices {
+    display: flex;
+    gap: 5px;
+}
