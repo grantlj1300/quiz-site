@@ -20,17 +20,29 @@ export default function App() {
 	function toGamePlayScreen(){
 		let url
 		let {numQuestions, category, difficulty, type} = formData
+
 		numQuestions = `amount=${numQuestions}`
 		category = category === 0 ? "" : `&category=${category}`
 		difficulty = difficulty === "" ? "" : `&difficulty=${difficulty}`
 		type = type === "" ? "" : `&type=${type}`
+
 		url = `https://opentdb.com/api.php?${numQuestions}
 			${category}${difficulty}${type}`
-		console.log(url)
+
 		fetch(url)
 			.then(res => res.json())
 			.then(data => generateNewQuestions(data.results))
+
 		setGameState("playGame")
+
+		setFormData(
+			{
+				numQuestions: "",
+				category: 0,
+				difficulty: "",
+				type: ""
+			}
+		)
 	}
 
 	function toStartScreen(){
