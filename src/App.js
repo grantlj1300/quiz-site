@@ -1,14 +1,20 @@
 import React from 'react'
+import {nanoid} from 'nanoid'
 import Question from './components/Question'
+import StartScreen from './components/StartScreen'
+import PlayScreen from './components/PlayScreen'
 
 export default function App() {
-/*
-API: https://opentdb.com/api.php?
-	amount=10 (or 1-50)
-	&category=9 (9-32 or not included)
-	&difficulty=easy (or medium/hard or not included)
-	&type=multiple (or boolean for true/false or not specified)
-*/
+
+	// Grab category: id data from API once
+	const [categories, setCategories] = React.useState([])
+	React.useEffect(() => {
+		fetch("https://opentdb.com/api_category.php")
+			.then(res => res.json())
+			.then(data => setCategories(data.trivia_categories))
+	}, [])
+
+	// Game state tracks which screen to render
 	const [gameState, setGameState] = React.useState("startGame")
 
 	function toGamePlayScreen(){
@@ -50,19 +56,12 @@ API: https://opentdb.com/api.php?
 
 	const questionElements = allQuestions.map(questionElement => (
 		<Question 
+			key={nanoid()}
 			question={questionElement.question}
 			answers={[...questionElement.incorrect_answers, questionElement.correct_answer]}
 			correct_answer={questionElement.correct_answer}
 		/>
 	))
-
-	const [categories, setCategories] = React.useState([])
-
-	React.useEffect(() => {
-		fetch("https://opentdb.com/api_category.php")
-			.then(res => res.json())
-			.then(data => setCategories(data.trivia_categories))
-	}, [])
 
 	const categoryOptions = categories.map(category => (
 		<option value={category.id}>{category.name}</option>
@@ -89,59 +88,22 @@ API: https://opentdb.com/api.php?
 
 	return (
 		<div className="main-container">
-			{(gameState === "startGame") && 
-			<div className="start-screen">
-				<h1 className="start-title">Quizzical</h1>
-				<p className="start-description">Test your knowledge!
-				<br />
-				Choose your questions below</p>
-				<form className="start-form">
-					<input 
-						className="start-form-input"
-						type="number" 
-						name="numQuestions"
-						value={formData.numQuestions}
-						onChange={handleFormChange}
-						placeholder="# of Questions (1-50)"
-					/>
-					<select 
-						className="start-form-input"
-						name="category"
-						value={formData.category}
-						onChange={handleFormChange}
-					>
-						<option value={0}>Any Category</option>
-						{categoryOptions}
-					</select>
-					<select 
-						className="start-form-input"
-						name="difficulty"
-						value={formData.difficulty}
-						onChange={handleFormChange}
-					>
-						<option>Any Difficulty</option>
-						<option value="easy">Easy</option>
-						<option value="medium">Medium</option>
-						<option value="hard">Hard</option>
-					</select>
-					<select 
-						className="start-form-input"
-						name="type"
-						value={formData.type}
-						onChange={handleFormChange}
-					>
-						<option>Any Type</option>
-						<option value="multiple">Multiple Choice</option>
-						<option value="boolean">True / False</option>
-					</select>
-				</form>
-				<button className="start-button" onClick={toGamePlayScreen}>Start Quiz</button>
-			</div>}
-			{(gameState === "playGame") && 
-			<form className="play-screen">
-				{questionElements}
-				<button onClick={toStartScreen}>Check Answers</button>
-			</form>}
+			{
+			(gameState === "startGame") && 
+			<StartScreen 
+				formData={formData}
+				handleFormChange={handleFormChange}
+				categoryOptions={categoryOptions}
+				toGamePlayScreen={toGamePlayScreen}
+			/>
+			}
+			{
+			(gameState === "playGame") && 
+			<PlayScreen 
+				questionElements={questionElements}
+				toStartScreen={toStartScreen}
+			/>
+			}
 		</div>
 	)
 }
