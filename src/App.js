@@ -105,7 +105,8 @@ export default function App() {
 	function generateNewQuestions(questionsArray){
 		let questions = []
 		for (let i = 0; i < questionsArray.length; i++) {
-			let answersArray = questionsArray[i].incorrect_answers.map(answer => (
+			let answers = [...questionsArray[i].incorrect_answers, questionsArray[i].correct_answer]
+			let answersArray = answers.map(answer => (
 				{
 					id: nanoid(),
 					text: answer,
@@ -113,14 +114,7 @@ export default function App() {
 					correct: false
 				}
 			))
-			answersArray.push(
-				{
-					id: nanoid(),
-					text: questionsArray[i].correct_answer,
-					selected: false,
-					correct: true
-				}
-			) 
+			answersArray[answersArray.length - 1].correct = true
 			for (let i = answersArray.length - 1; i > 0; i--) {
 				let j = Math.floor(Math.random() * (i + 1));
 				let temp = answersArray[i];
@@ -160,7 +154,7 @@ export default function App() {
 				return {...question, answers: updatedAnswers}
 			}
 			else {
-				return {...question}
+				return question
 			}
 		}
 		))

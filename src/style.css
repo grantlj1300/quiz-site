@@ -108,7 +108,7 @@ button {
     color: #293264;
 }
 
-.question-answer:hover {
+.question-answer:not(.correct,.incorrect,.blank):hover {
     background: #dfe2f5;
 }
 
@@ -130,10 +130,6 @@ button {
 
 .blank, .incorrect {
     opacity: 0.5;
-}
-
-.blank:hover, .incorrect:hover {
-    background: transparent;
 }
 
 .submit-button {
