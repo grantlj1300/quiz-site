@@ -1,6 +1,6 @@
 export default function StartScreen(props) {
 
-    const {formData, handleFormChange, categoryOptions, toGamePlayScreen} = props
+    const {formData, handleFormChange, categoryOptions, startGame} = props
     const validNum = (formData.numQuestions > 0) && (formData.numQuestions < 51) ?
             true : false
 
@@ -12,7 +12,7 @@ export default function StartScreen(props) {
             Choose your questions below</p>
             <div className="start-form">
                 <input 
-                    className={`start-form-input number ${validNum ? "" : " bad-num"}`}
+                    className={`start-form-input number${validNum ? "" : " bad-num"}`}
                     type="number" 
                     name="numQuestions"
                     value={formData.numQuestions}
@@ -52,7 +52,7 @@ export default function StartScreen(props) {
             </div>
             <button 
                 className="start-button" 
-                onClick={validNum ? toGamePlayScreen : undefined}>
+                onClick={validNum ? startGame : undefined}>
                     Start Quiz</button>
         </div>
     )

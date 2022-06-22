@@ -14,11 +14,37 @@ export default function App() {
 			.then(data => setCategories(data.trivia_categories))
 	}, [])
 
+	const categoryOptions = categories.map(category => (
+		<option 
+			key={category.id}
+			value={category.id}
+		>{category.name}</option>
+	))
+
+	// Generate form to hold user input
+	const [formData, setFormData] = React.useState(
+		{
+			numQuestions: "",
+			category: 0,
+			difficulty: "",
+			type: ""
+		}
+	)
+
+	function handleFormChange(event) {
+		const {name, value} = event.target
+		setFormData(prevFormData => (
+			{
+				...prevFormData,
+				[name]: value
+			}
+		))
+	}
+
 	// Game state tracks which screen to render
 	const [gameState, setGameState] = React.useState("startGame")
 
-	function toGamePlayScreen(){
-		let url
+	function generateUrl() {
 		let {numQuestions, category, difficulty, type} = formData
 
 		numQuestions = `amount=${numQuestions}`
@@ -26,14 +52,16 @@ export default function App() {
 		difficulty = difficulty === "" ? "" : `&difficulty=${difficulty}`
 		type = type === "" ? "" : `&type=${type}`
 
-		url = `https://opentdb.com/api.php?${numQuestions}
+		return `https://opentdb.com/api.php?${numQuestions}
 			${category}${difficulty}${type}`
+	}
 
-		fetch(url)
+	function startGame(){
+		fetch(generateUrl())
 			.then(res => res.json())
 			.then(data => generateNewQuestions(data.results))
 
-		setGameState("playGame")
+		setGameState("playingGame")
 
 		setFormData(
 			{
@@ -46,74 +74,117 @@ export default function App() {
 	}
 
 	function toStartScreen(){
+		setAllQuestions([])
 		setGameState("startGame")
 	}
 
-	// React.useEffect(() => {
+	const [totalCorrect, setTotalCorrect] = React.useState(0)
 
-	// 	const url = `https://opentdb.com/api.php?
-	// 					amount=${formData.numQuestions}
-	// 					${"&category="}`
-	// 	fetch("https://opentdb.com/api.php?amount=3")
-	// 		.then(res => res.json())
-	// 		.then(data => generateNewQuestions(data.results))
-	// }, [])
+	function toEndGame(){
+		let correctAnswers = 0, answered = 0
+		for (let i = 0; i < allQuestions.length; i++) {
+			let questionAnswered = false
+			for(let j = 0; j < allQuestions[i].answers.length; j++){
+				if(allQuestions[i].answers[j].correct && allQuestions[i].answers[j].selected){
+					correctAnswers++
+					questionAnswered = true
+				}
+				else if(allQuestions[i].answers[j].selected){
+					questionAnswered = true
+				}
+			}
+			if(questionAnswered){
+				answered++
+			}
+			else{ return}
+		}
+		setTotalCorrect(correctAnswers)
+		setGameState("endGame")
+	}
 
 	function generateNewQuestions(questionsArray){
-		console.log(questionsArray)
-		setAllQuestions(questionsArray)
+		let questions = []
+		for (let i = 0; i < questionsArray.length; i++) {
+			let answersArray = questionsArray[i].incorrect_answers.map(answer => (
+				{
+					id: nanoid(),
+					text: answer,
+					selected: false,
+					correct: false
+				}
+			))
+			answersArray.push(
+				{
+					id: nanoid(),
+					text: questionsArray[i].correct_answer,
+					selected: false,
+					correct: true
+				}
+			) 
+			for (let i = answersArray.length - 1; i > 0; i--) {
+				let j = Math.floor(Math.random() * (i + 1));
+				let temp = answersArray[i];
+				answersArray[i] = answersArray[j];
+				answersArray[j] = temp;
+			}
+			questions[i] = 
+			{
+				id: i,
+				answers: answersArray,
+				question: questionsArray[i].question
+			}
+		}
+		setAllQuestions(questions)
 	}
 
 	const [allQuestions, setAllQuestions] = React.useState([])
 
-	const questionElements = allQuestions.map(questionElement => (
-		<Question 
-			key={nanoid()}
+	const questionElements = allQuestions.map(questionElement => {
+		return <Question 
+			key={questionElement.id}
+			id={questionElement.id}
 			question={questionElement.question}
-			answers={[...questionElement.incorrect_answers, questionElement.correct_answer]}
-			correct_answer={questionElement.correct_answer}
+			handleAnswerClick={handleAnswerClick}
+			answers={questionElement.answers}
+			gameState={gameState}
 		/>
-	))
+	})
 
-	const categoryOptions = categories.map(category => (
-		<option value={category.id}>{category.name}</option>
-	))
-
-	const [formData, setFormData] = React.useState(
-		{
-			numQuestions: "",
-			category: 0,
-			difficulty: "",
-			type: ""
-		}
-	)
-
-	function handleFormChange(event) {
-		const {name, value} = event.target
-		setFormData(prevFormData => {
-			return {
-				...prevFormData,
-				[name]: value
+	function handleAnswerClick(event, questionIndex){
+		setAllQuestions(prevQuestions => prevQuestions.map(question => {
+			if (question.id === questionIndex) {
+				let updatedAnswers = question.answers.map(answer => (
+					event.target.id === answer.id ? 
+                	{...answer, selected: !answer.selected} : {...answer, selected: false}
+				))
+				return {...question, answers: updatedAnswers}
 			}
-		})
-	}
+			else {
+				return {...question}
+			}
+		}
+		))
+    }
 
 	return (
 		<div className="main-container">
 			{
-			(gameState === "startGame") && 
+			gameState === "startGame" && 
 			<StartScreen 
 				formData={formData}
 				handleFormChange={handleFormChange}
 				categoryOptions={categoryOptions}
-				toGamePlayScreen={toGamePlayScreen}
+				startGame={startGame}
 			/>
 			}
 			{
-			(gameState === "playGame") && 
+			(gameState === "playingGame" || gameState === "endGame")&& 
 			<PlayScreen 
+				playingGame={gameState === "playingGame" ? true : false}
 				questionElements={questionElements}
 				toStartScreen={toStartScreen}
+				toEndGame={toEndGame}
+				totalCorrect={totalCorrect}
 			/>
 			}
 		</div>
