@@ -97,7 +97,7 @@ export default function App() {
 				startGame={startGame}
 			/>}
 
-			{(gameState === "playingGame" || gameState === "endGame")&& 
+			{(gameState === "playingGame" || gameState === "endGame") && 
 			<PlayScreen 
 				playingGame={gameState === "playingGame" ? true : false}
 				toStartScreen={toStartScreen}
