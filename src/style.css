@@ -110,10 +110,12 @@ button {
 
 .question-answer:not(.correct,.incorrect,.blank):hover {
     background: #dfe2f5;
+    border: none;
 }
 
 .selected {
     background: #c5cbf5;
+    border: none;
 }
 
 .selected:hover {
@@ -122,10 +124,12 @@ button {
 
 .correct {
     background: #94D7A2;
+    border: none;
 }
 
 .incorrect {
     background: rgb(247, 165, 179);
+    border: none;
 }
 
 .blank, .incorrect {
