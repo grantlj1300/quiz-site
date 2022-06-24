@@ -6,8 +6,10 @@ export default function PlayScreen(props) {
 
     const {playingGame, toStartScreen, toEndGame, gameQuestionsDirty} = props
 
+    // Store all questions with answers and selected/correct answer
     const [allQuestions, setAllQuestions] = React.useState([])
 
+    // Generate new question objects when new questions are passed down
     React.useEffect(() => {
         setAllQuestions(gameQuestionsDirty.map((question, index) => {
             let answersArray = question.incorrect_answers.map(answer => (
@@ -39,6 +41,7 @@ export default function PlayScreen(props) {
         }))
     }, [gameQuestionsDirty])
 
+    // Update selectedId of answer when an answer is clicked
     function handleAnswerClick(event, questionId){
 		setAllQuestions(prevQuestions => prevQuestions.map(question => {
             if(question.id === questionId){
@@ -50,6 +53,7 @@ export default function PlayScreen(props) {
         }))
     }
 
+    // Generate a count of the total correct answers
     function totalCorrect(){
         let correctCount = 0
         allQuestions.forEach(question => {

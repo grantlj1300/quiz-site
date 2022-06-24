@@ -10,6 +10,7 @@ export default function Question(props) {
             playingGame, 
             handleAnswerClick } = props
 
+    // Generate style of answer button
     function answerStyle(answer){
         if (playingGame) return answer.id === selectedId ? " selected" : ""
         else {
@@ -19,14 +20,14 @@ export default function Question(props) {
         }
     }
     
+    // Generate answer buttons
     const answerElements = questionAnswers.map(answer => (
         <button className={`question-answer${answerStyle(answer)}`}
                 key={answer.id}
                 id={answer.id}
                 onClick={playingGame ? 
                 (event) => handleAnswerClick(event, id) : undefined}
-                dangerouslySetInnerHTML={{__html: answer.text}}
-        >
+                dangerouslySetInnerHTML={{__html: answer.text}}>
         </button>
     ))
 
