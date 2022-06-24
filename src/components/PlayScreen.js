@@ -1,44 +1,76 @@
 import React from "react"
 import Question from "./Question"
+import {nanoid} from "nanoid"
 
 export default function PlayScreen(props) {
 
-    const {playingGame, 
-        toStartScreen, toEndGame, gameQuestionsDirty} = props
+    const {playingGame, toStartScreen, toEndGame, gameQuestionsDirty} = props
 
-    const [endGameStats, setEndGameStats] = React.useState(
-        {
-            totalCorrect: 0,
-            totalAnswered: 0
-        }
-    )
+    const [allQuestions, setAllQuestions] = React.useState([])
 
-    function updateEndGameStats(prevAnswered, newAnswered, correctId){
-        let correct, answered
-        if(prevAnswered === newAnswered){
-            answered = -1
-            correct = correctId === newAnswered ? -1 : 0
-        }
-        else {
-            answered = 1
-            correct = correctId === newAnswered ? 1 : 0
-        }
-        setEndGameStats(prevStats => (
-            {
-                totalCorrect: prevStats.totalCorrect + correct,
-                totalAnswered: prevStats.totalAnswered + answered
+    React.useEffect(() => {
+        setAllQuestions(gameQuestionsDirty.map((question, index) => {
+            let answersArray = question.incorrect_answers.map(answer => (
+                {
+                    id: nanoid(),
+                    text: answer
+                }
+            ))
+            answersArray.push(
+                {
+                    id: nanoid(),
+                    text: question.correct_answer
+                }
+            )
+            let correctId = answersArray[answersArray.length - 1].id
+            for (let i = answersArray.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1))
+                let temp = answersArray[i]
+                answersArray[i] = answersArray[j]
+                answersArray[j] = temp
             }
-        ))
+            return  {
+                id: index,
+                answers: answersArray,
+                question: question.question,
+                selectedId: undefined,
+                correctId: correctId
+            }
+        }))
+    }, [gameQuestionsDirty])
+
+    function handleAnswerClick(event, questionId){
+		setAllQuestions(prevQuestions => prevQuestions.map(question => {
+            if(question.id === questionId){
+                return question.selectedId === event.target.id ?
+                    {...question, selectedId: undefined } : 
+                    {...question, selectedId: event.target.id }
+            }
+            else return question
+        }))
     }
 
-	const questionElements = gameQuestionsDirty.map((questionElement, index) => {
+    function totalCorrect(){
+        let correctCount = 0
+        allQuestions.forEach(question => {
+            correctCount += question.selectedId === question.correctId ? 1 : 0
+		})
+        return correctCount
+    }
+
+    // Generate question elements to display
+    if(allQuestions.length){
+
+	const questionElements = allQuestions.map(questionElement => {
 		return <Question 
-			key={index}
-			id={index}
+			key={questionElement.id}
+			id={questionElement.id}
 			questionText={questionElement.question}
-			questionAnswers={[...questionElement.incorrect_answers, questionElement.correct_answer]}
+			questionAnswers={questionElement.answers}
+            selectedId={questionElement.selectedId}
+            correctId={questionElement.correctId}
 			playingGame={playingGame}
-            updateEndGameStats={updateEndGameStats}
+            handleAnswerClick={handleAnswerClick}
 		/>
 	})
 
@@ -47,27 +79,21 @@ export default function PlayScreen(props) {
             <div className="question-container">
                 {questionElements}
             </div>
-            {
-            playingGame && 
-            <button 
-                className="submit-button" 
-                onClick={toEndGame}
-            >Check Answers
-            </button>
-            }
-            {
-            !playingGame && 
-            <div className="play-again-container">
+
+            {playingGame && 
+            <button className="submit-button" onClick={() => toEndGame(allQuestions)}>
+                Check Answers
+            </button>}
+
+            {!playingGame && <div className="play-again-container">
                 <h2 className="score">
-                    You scored {endGameStats.totalCorrect}/{questionElements.length} correct answers
+                    You scored {totalCorrect()}/{questionElements.length} correct answers
                 </h2>
-                <button 
-                    className="play-again-button" 
-                    onClick={toStartScreen}
-                >Play Again
+                <button className="play-again-button" onClick={toStartScreen}>
+                    Play Again
                 </button>
-            </div>
-            }
+            </div>}
         </div>
     )
+    }
 } 
