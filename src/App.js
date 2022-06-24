@@ -79,16 +79,13 @@ export default function App() {
 
 	// Check if all questions have been answered, end game if so
 	function toEndGame(questions){
-		let allAnswered = true
-		questions.forEach(question => {
-			let answered = question.selectedId ? true : false
-			if (!answered) allAnswered = false
-		})
+		let allAnswered = questions.every(question => question.selectedId)
 		if (allAnswered) setGameState("endGame")
 	}
 
 	return (
 		<div className="main-container">
+			
 			{gameState === "startGame" && 
 			<StartScreen 
 				formData={formData}

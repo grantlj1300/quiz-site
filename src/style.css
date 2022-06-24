@@ -112,12 +112,12 @@ button {
 
 .question-answer:not(.correct,.incorrect,.blank):hover {
     background: #dfe2f5;
-    border: none;
+    border: 0.8px solid transparent;
 }
 
 .selected {
     background: #c5cbf5;
-    border: none;
+    border: 0.8px solid transparent;
 }
 
 .selected:hover {
